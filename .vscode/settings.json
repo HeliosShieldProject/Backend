@@ -6,11 +6,11 @@
     "**/__pycache__/**": true,
     "**/.pytest_cache/**": true
   },
-  "python.analysis.fixAll": ["source.unusedImports"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always"
+  },
   "[python]": {
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit",
-      "source.fixAll": "explicit"
-    }
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "charliermarsh.ruff"
   }
 }
