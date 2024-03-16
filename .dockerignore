@@ -5,7 +5,13 @@
 **/.pytest_cache
 .ruff_cache
 
+# ide
+.github
+.vscode
+.pre-commit-config.yaml
+ruff.toml
+
 # common
 test.*
 .idea
-.env
+Readme.md
