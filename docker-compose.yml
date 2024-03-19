@@ -12,10 +12,10 @@ services:
     build:
       context: .
       args:
-        - BACKEND_PORT=${BACKEND_PORT}
+        - BACKEND_PORT=${MASTER_BACKEND_PORT}
       dockerfile: Dockerfile
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "${MASTER_BACKEND_PORT}:${MASTER_BACKEND_PORT}"
     depends_on:
       - master-db
     networks:
