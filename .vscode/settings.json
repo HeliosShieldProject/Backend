@@ -1,16 +1,7 @@
 {
   "discord.lowerDetailsEditing": "Project Helios (codename)",
-  "files.exclude": {
-    ".idea": true,
-    "**/.venv": true,
-    "**/__pycache__/**": true,
-    "**/.pytest_cache/**": true
-  },
   "editor.codeActionsOnSave": {
-    "source.fixAll": "always"
+    "source.fixAll": "always",
+    "source.organizeImports": "always"
   },
-  "[python]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "charliermarsh.ruff"
-  }
 }
