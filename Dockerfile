@@ -1,12 +1,21 @@
-FROM python:3.12-alpine
+FROM node:20.11-alpine AS base
 
 ARG BACKEND_PORT
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . /app
 WORKDIR /app
-COPY ./requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
-RUN pip install "uvicorn[standard]"
-COPY . /app/
+
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+
+FROM base AS build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run build
+
+FROM base
+COPY --from=prod-deps /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
 EXPOSE $BACKEND_PORT
-RUN echo "uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT}" > /app/start.sh
-RUN chmod +x /app/start.sh
-ENTRYPOINT ["sh", "/app/start.sh"]
+CMD [ "pnpm", "start:prod" ]
