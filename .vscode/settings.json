@@ -4,4 +4,5 @@
     "source.fixAll": "always",
     "source.organizeImports": "always"
   },
+  "editor.tabSize": 2
 }
