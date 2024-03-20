@@ -1,15 +1,8 @@
 {
   "discord.lowerDetailsEditing": "Project Helios (codename)",
-  "files.exclude": {
-    ".idea": true,
-    "**/.venv": true,
-    "**/__pycache__/**": true
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.organizeImports": "always"
   },
-  "python.analysis.fixAll": ["source.unusedImports"],
-  "[python]": {
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit",
-      "source.fixAll": "explicit"
-    }
-  }
+  "editor.tabSize": 2
 }

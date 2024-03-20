@@ -1,8 +1,8 @@
-# python
-**/.venv
-**/__pycache__
-**/*.pyc
+# js
+node_modules
+dist
 
 # common
 test.*
 .idea
+.env

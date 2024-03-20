@@ -1,0 +1,13 @@
+# ide
+.github
+.vscode
+.pre-commit-config.yaml
+
+# js
+dist
+node_modules
+
+# common
+test.*
+.idea
+Readme.md
