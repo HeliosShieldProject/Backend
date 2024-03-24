@@ -5,30 +5,6 @@ import { ConfigStatus, Country, Prisma } from "@prisma/client";
 @Injectable()
 export class ConfigService {
   constructor(private prisma: PrismaService) {}
-
-  async config(configWhereUniqueInput: Prisma.ConfigWhereUniqueInput) {
-    return this.prisma.config.findUnique({
-      where: configWhereUniqueInput,
-    });
-  }
-
-  async configs(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.ConfigWhereUniqueInput;
-    where?: Prisma.ConfigWhereInput;
-    orderBy?: Prisma.ConfigOrderByWithRelationInput;
-  }) {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.config.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-    });
-  }
-
   async createConfigByCountry(country: Country) {
     // {"privateKey":"iEGDq91WOScjNULjjfcK/+49Em72HsG5rR1fFQJfw3Y=","userIp":"24.0.0.14"}
     const server = await this.prisma.server.findFirst({

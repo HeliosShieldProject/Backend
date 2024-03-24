@@ -1,37 +1,57 @@
-import { ConfigService } from "@/modules/config/config.service";
-import { Body, Controller, Post } from "@nestjs/common";
-import { SessionStatus } from "@prisma/client";
-import { CreateSessionDto } from "./dto/create-session.dto";
+import {
+  CloseSessionDto,
+  CreateSessionDto,
+  SessionDto,
+} from "@/modules/session/dto";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  Query,
+} from "@nestjs/common";
+import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SessionService } from "./session.service";
 
 @Controller("session")
+@ApiTags("session")
 export class SessionController {
-  constructor(
-    private readonly sessionsService: SessionService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly sessionsService: SessionService) {}
 
   @Post()
+  @ApiResponse({ status: HttpStatus.CREATED, type: SessionDto })
   async createSession(@Body() body: CreateSessionDto) {
-    const session = await this.sessionsService.session({
-      id: body.deviceId,
-      status: SessionStatus.ACTIVE,
-    });
-    if (session) {
-      return session;
-    }
-    const config = await this.configService.configByCountry(body.country);
-    return this.sessionsService.createSession({
-      config: {
-        connect: {
-          id: config.id,
-        },
-      },
-      device: {
-        connect: {
-          id: body.deviceId,
-        },
-      },
-    });
+    const session = await this.sessionsService.createSession(body);
+    return session;
+  }
+
+  @Put()
+  @ApiResponse({ status: HttpStatus.OK, description: "Session closed" })
+  async closeSession(@Body() body: CloseSessionDto) {
+    await this.sessionsService.closeSessionById(body.sessionId);
+  }
+
+  @Get("/history/:userId")
+  @ApiResponse({ status: HttpStatus.OK, type: SessionDto })
+  async getHistory(
+    @Param("userId", ParseUUIDPipe) userId,
+    @Query("limit", new ParseIntPipe({ optional: true })) limit: number = 10,
+    @Query("offset", new ParseIntPipe({ optional: true })) offset: number = 0,
+    @Query("devices") devices?: string,
+    @Query("countries") countries?: string,
+  ) {
+    const sessions = await this.sessionsService.getHistory(
+      userId,
+      limit,
+      offset,
+      devices,
+      countries,
+    );
+    return sessions;
   }
 }

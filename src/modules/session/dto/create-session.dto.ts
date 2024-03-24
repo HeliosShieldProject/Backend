@@ -1,7 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Country } from "@prisma/client";
+import { IsEnum, IsUUID } from "class-validator";
 
 export class CreateSessionDto {
-  @ApiProperty() deviceId: string;
-  @ApiProperty({ enum: Country }) country: Country;
+  @ApiProperty()
+  @IsUUID()
+  deviceId: string;
+
+  @ApiProperty({ enum: Country })
+  @IsEnum(Country)
+  country: Country;
 }
