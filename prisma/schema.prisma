@@ -1,0 +1,81 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Country {
+  UK
+  USA
+  Germany
+}
+
+enum SessionStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum ConfigStatus {
+  IN_USE
+  NOT_IN_USE
+}
+
+model Server {
+  id           String   @id @default(uuid())
+  publicKey    String   @unique
+  backendUri   String   @unique
+  wireguardUri String   @unique
+  country      Country
+  configs      Config[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Config {
+  id         String       @id @default(uuid())
+  privateKey String       @unique
+  userIp     String
+  server     Server       @relation(fields: [serverId], references: [id])
+  serverId   String
+  sessions   Session[]
+  status     ConfigStatus @default(NOT_IN_USE)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  devices   Device[]
+}
+
+model Device {
+  id         String    @id @default(uuid())
+  name       String
+  type       String
+  os         String
+  macAddress String
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  sessions   Session[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Session {
+  id       String        @id @default(uuid())
+  status   SessionStatus @default(ACTIVE)
+  openedAt DateTime      @default(now())
+  closedAt DateTime?
+  device   Device        @relation(fields: [deviceId], references: [id])
+  deviceId String
+  config   Config        @relation(fields: [configId], references: [id])
+  configId String
+}

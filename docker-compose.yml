@@ -3,12 +3,9 @@ name: "master-backend"
 networks:
   master-network:
     driver: bridge
-  outside:
-    external: true
 
 services:
-  master-backend:
-    image: master-backend
+  nest:
     build:
       context: .
       args:
@@ -17,12 +14,11 @@ services:
     ports:
       - "${MASTER_BACKEND_PORT}:${MASTER_BACKEND_PORT}"
     depends_on:
-      - master-db
+      - database
     networks:
       - master-network
-      - outside
 
-  master-db:
+  database:
     image: postgres:12
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
