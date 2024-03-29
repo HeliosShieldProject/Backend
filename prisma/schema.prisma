@@ -8,6 +8,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OS {
+  iOS
+  linux
+  windows
+  macOS
+  android
+}
+
 enum Country {
   UK
   USA
@@ -57,16 +65,14 @@ model User {
 }
 
 model Device {
-  id         String    @id @default(uuid())
-  name       String
-  type       String
-  os         String
-  macAddress String
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String
-  sessions   Session[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id        String    @id @default(uuid())
+  name      String    @default("Device")
+  os        OS        @default(android)
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Session {
