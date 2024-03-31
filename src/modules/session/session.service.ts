@@ -15,19 +15,13 @@ export class SessionService {
     private readonly configService: ConfigService,
   ) {}
 
-  async createSession(data: CreateSessionDto): Promise<SessionDto> {
-    const device = await this.prisma.device.findUnique({
-      where: {
-        id: data.deviceId,
-      },
-    });
-    if (!device) {
-      throw new HttpException("Device not found", 404);
-    }
-
+  async createSession(
+    deviceId: string,
+    data: CreateSessionDto,
+  ): Promise<SessionDto> {
     const session = await this.prisma.session.findFirst({
       where: {
-        deviceId: data.deviceId,
+        deviceId: deviceId,
         status: SessionStatus.ACTIVE,
         config: {
           server: {
@@ -43,6 +37,7 @@ export class SessionService {
         },
       },
     });
+
     if (session) {
       return {
         sessionId: session.id,
@@ -55,10 +50,11 @@ export class SessionService {
 
     const activeSession = await this.prisma.session.findFirst({
       where: {
-        deviceId: data.deviceId,
+        deviceId: deviceId,
         status: SessionStatus.ACTIVE,
       },
     });
+
     if (activeSession) {
       await this.closeSessionById(activeSession.id);
     }
@@ -73,7 +69,7 @@ export class SessionService {
         },
         device: {
           connect: {
-            id: device.id,
+            id: deviceId,
           },
         },
       },
@@ -102,9 +98,11 @@ export class SessionService {
         id: sessionId,
       },
     });
+
     if (!session) {
       throw new HttpException("Session not found", 404);
     }
+
     if (session.status === SessionStatus.CLOSED) {
       throw new HttpException("Session already closed", 400);
     }
@@ -123,6 +121,21 @@ export class SessionService {
         id: sessionId,
       },
     });
+  }
+
+  async closeSession(deviceId: string) {
+    const session = await this.prisma.session.findFirst({
+      where: {
+        deviceId: deviceId,
+        status: SessionStatus.ACTIVE,
+      },
+    });
+
+    if (!session) {
+      throw new HttpException("Session not found", 404);
+    }
+
+    return this.closeSessionById(session.id);
   }
 
   async getHistory(
