@@ -11,6 +11,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("Helios Master Backend")
     .setVersion("1.0")
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);

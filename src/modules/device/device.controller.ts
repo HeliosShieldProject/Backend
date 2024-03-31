@@ -1,33 +1,22 @@
 import { RequestDto } from "@/auth/dto";
 import { AccessGuard } from "@/common/guards";
-import {
-  Body,
-  Controller,
-  Param,
-  Post,
-  Put,
-  Req,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, Param, Put, Req, UseGuards } from "@nestjs/common";
 import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiTags,
 } from "@nestjs/swagger";
 import { DeviceService } from "./device.service";
-import { AddDeviceDto } from "./dto";
 
 @Controller("device")
 @ApiTags("device")
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
-  @Post()
-  @ApiCreatedResponse({ description: "Device created" })
-  @ApiNotFoundResponse({ description: "User not found" })
+  @Get()
   @UseGuards(AccessGuard)
-  async addDevice(@Req() req: RequestDto, @Body() body: AddDeviceDto) {
-    return await this.deviceService.addDevice(req.user.userId, body);
+  async getDevices(@Req() req: RequestDto) {
+    return await this.deviceService.getDevices(req.user.userId);
   }
 
   @Put("/:deviceId")

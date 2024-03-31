@@ -35,12 +35,6 @@ export class AuthController {
     return await this.authService.signIn(body);
   }
 
-  @Get("test")
-  @UseGuards(AccessGuard)
-  async test(@Req() req: RequestDto) {
-    return req.user;
-  }
-
   @Get("refresh")
   @UseGuards(RefreshGuard)
   async refresh(@Req() req: RequestDto) {
