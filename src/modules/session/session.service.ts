@@ -1,6 +1,10 @@
 import { PrismaService } from "@/data/prisma.service";
 import { ConfigService } from "@/modules/config/config.service";
-import { CreateSessionDto, SessionDto } from "@/modules/session/dto";
+import {
+  CreateSessionDto,
+  HistoryDto,
+  SessionDto,
+} from "@/modules/session/dto";
 import { HttpException, Injectable } from "@nestjs/common";
 import { ConfigStatus, Country, SessionStatus } from "@prisma/client";
 
@@ -41,6 +45,7 @@ export class SessionService {
     });
     if (session) {
       return {
+        sessionId: session.id,
         serverPublicKey: session.config.server.publicKey,
         wireguardUri: session.config.server.wireguardUri,
         userIp: session.config.userIp,
@@ -73,6 +78,7 @@ export class SessionService {
         },
       },
       select: {
+        id: true,
         config: {
           include: {
             server: true,
@@ -82,6 +88,7 @@ export class SessionService {
     });
 
     return {
+      sessionId: newSession.id,
       serverPublicKey: newSession.config.server.publicKey,
       wireguardUri: newSession.config.server.wireguardUri,
       userIp: newSession.config.userIp,
@@ -118,84 +125,58 @@ export class SessionService {
     });
   }
 
-  async validateDevices(devices: string, userId: string): Promise<string[]> {
+  async getHistory(
+    userId: string,
+    limit: number,
+    offset: number,
+    devices?: string[],
+    countries?: Country[],
+  ): Promise<HistoryDto[]> {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
     });
+
     if (!user) {
-      throw new HttpException(`User ${userId} not found`, 404);
+      throw new HttpException("User not found", 404);
     }
 
-    if (!devices) {
-      return await this.prisma.device
-        .findMany({
-          where: {
-            userId,
-          },
-          select: {
-            id: true,
-          },
-        })
-        .then((devices) => devices.map((device) => device.id));
-    }
-    const deviceIds = devices.split(",");
-    for (const deviceId of deviceIds) {
-      const device = await this.prisma.device.findUnique({
-        where: {
-          id: deviceId,
-          userId,
-        },
-      });
-      if (!device) {
-        throw new HttpException(`Device ${deviceId} not found`, 404);
-      }
-    }
-    return deviceIds;
-  }
-
-  async validateCountries(countries?: string): Promise<Country[]> {
-    if (!countries) {
-      return Object.values(Country);
-    }
-    const countryCodes = countries.split(",") as Country[];
-    countryCodes.forEach((countryCode) => {
-      if (Country[countryCode] === undefined) {
-        throw new HttpException(`Country ${countryCode} not found`, 404);
-      }
-      return Country[countryCode];
-    });
-    return countryCodes;
-  }
-
-  async getHistory(
-    userId: string,
-    limit: number,
-    offset: number,
-    devices?: string,
-    countries?: string,
-  ) {
-    const validatedDevices = await this.validateDevices(devices, userId);
-    const validatedCountries = await this.validateCountries(countries);
-    return this.prisma.session.findMany({
+    const sessions = await this.prisma.session.findMany({
       where: {
         device: {
-          userId,
-          id: {
-            in: validatedDevices,
-          },
+          userId: user.id,
         },
         config: {
           server: {
             country: {
-              in: validatedCountries,
+              in: countries,
             },
           },
         },
       },
+      include: {
+        config: {
+          include: {
+            server: true,
+          },
+        },
+        device: true,
+      },
       take: limit,
       skip: offset,
     });
+
+    return sessions.map((session) => ({
+      sessionId: session.id,
+      status: session.status,
+      openedAt: session.openedAt,
+      closedAt: session.closedAt,
+      device: {
+        name: session.device.name,
+        os: session.device.os,
+      },
+      country: session.config.server.country,
+    }));
   }
 }

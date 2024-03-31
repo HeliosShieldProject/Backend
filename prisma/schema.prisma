@@ -8,6 +8,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OS {
+  iOS
+  linux
+  windows
+  macOS
+  android
+}
+
 enum Country {
   UK
   USA
@@ -22,6 +30,19 @@ enum SessionStatus {
 enum ConfigStatus {
   IN_USE
   NOT_IN_USE
+}
+
+enum DeviceStatus {
+  ACTIVE
+  REVOKED
+  BANNED
+  PERMANENTLY_BANNED
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+  PERMANENTLY_BANNED
 }
 
 model Server {
@@ -48,25 +69,30 @@ model Config {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  devices   Device[]
+  id         String     @id @default(uuid())
+  email      String     @unique
+  password   String
+  status     UserStatus @default(ACTIVE)
+  bannedAt   DateTime?
+  bannedTill DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  devices    Device[]
 }
 
 model Device {
-  id         String    @id @default(uuid())
-  name       String
-  type       String
-  os         String
-  macAddress String
-  user       User      @relation(fields: [userId], references: [id])
+  id         String       @id @default(uuid())
+  name       String       @default("Device")
+  os         OS           @default(android)
+  user       User         @relation(fields: [userId], references: [id])
   userId     String
+  status     DeviceStatus @default(ACTIVE)
+  bannedAt   DateTime?
+  bannedTill DateTime?
+  revokedAt  DateTime?
   sessions   Session[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }
 
 model Session {
