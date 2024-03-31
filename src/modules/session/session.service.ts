@@ -158,6 +158,9 @@ export class SessionService {
     const sessions = await this.prisma.session.findMany({
       where: {
         device: {
+          id: {
+            in: devices,
+          },
           userId: user.id,
         },
         config: {
@@ -186,6 +189,7 @@ export class SessionService {
       openedAt: session.openedAt,
       closedAt: session.closedAt,
       device: {
+        id: session.device.id,
         name: session.device.name,
         os: session.device.os,
       },
