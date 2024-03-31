@@ -9,7 +9,10 @@ const envSchema = z.object({
   DATABASE_PASSWORD: z.string().trim(),
   JWT_ACCESS_SECRET: z.string().trim(),
   JWT_REFRESH_SECRET: z.string().trim(),
-  SALT: z.string().trim(),
+  SALT: z
+    .string()
+    .trim()
+    .transform((value) => parseInt(value, 10)),
 });
 
 export const env = envSchema.parse(process.env);

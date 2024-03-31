@@ -85,7 +85,18 @@ export class DeviceService {
     };
   }
 
-  async removeDevice(deviceId: string): Promise<void> {
+  async removeDevice(userId: string, deviceId: string): Promise<void> {
+    const device = await this.prisma.device.findFirst({
+      where: {
+        id: deviceId,
+        userId: userId,
+      },
+    });
+
+    if (!device) {
+      throw new HttpException("Device not found", 404);
+    }
+
     await this.prisma.device.delete({
       where: {
         id: deviceId,

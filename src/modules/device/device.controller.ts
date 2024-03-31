@@ -1,12 +1,19 @@
-import { ParseUserPipe } from "@/common/pipes";
-import { ParseDevicePipe } from "@/common/pipes/parse-device-pipe";
-import { Body, Controller, Param, Post, Put } from "@nestjs/common";
+import { RequestDto } from "@/auth/dto";
+import { AccessGuard } from "@/common/guards";
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { UUID } from "crypto";
 import { DeviceService } from "./device.service";
 import { AddDeviceDto } from "./dto";
 
@@ -15,20 +22,22 @@ import { AddDeviceDto } from "./dto";
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
-  @Post("/:userId")
+  @Post()
   @ApiCreatedResponse({ description: "Device created" })
   @ApiNotFoundResponse({ description: "User not found" })
-  async addDevice(
-    @Param("userId", ParseUserPipe) userId: UUID,
-    @Body() body: AddDeviceDto,
-  ) {
-    return await this.deviceService.addDevice(userId, body);
+  @UseGuards(AccessGuard)
+  async addDevice(@Req() req: RequestDto, @Body() body: AddDeviceDto) {
+    return await this.deviceService.addDevice(req.user.userId, body);
   }
 
   @Put("/:deviceId")
   @ApiCreatedResponse({ description: "Device removed" })
   @ApiNotFoundResponse({ description: "Device or User not found" })
-  async removeDevice(@Param("deviceId", ParseDevicePipe) deviceId: UUID) {
-    return await this.deviceService.removeDevice(deviceId);
+  @UseGuards(AccessGuard)
+  async removeDevice(
+    @Req() req: RequestDto,
+    @Param("deviceId") deviceId: string,
+  ) {
+    return await this.deviceService.removeDevice(req.user.userId, deviceId);
   }
 }
