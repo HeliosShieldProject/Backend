@@ -1,7 +1,17 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { ApiCreatedResponse, ApiTags } from "@nestjs/swagger";
+import { AccessGuard, RefreshGuard } from "@/common/guards";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+  UsePipes,
+} from "@nestjs/common";
+import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { SignDto } from "./dto";
+import { RequestDto, SignDto, SignInDto } from "./dto";
+import { SignInPipe } from "./pipes";
 
 @Controller("auth")
 @ApiTags("auth")
@@ -19,11 +29,21 @@ export class AuthController {
   }
 
   @Post("sign-in")
-  async signIn(@Body() body: SignDto) {
-    return await this.authService.signIn(
-      body.email,
-      body.password,
-      body.device,
-    );
+  @ApiResponse({ status: 200, description: "User signed in successfully" })
+  @UsePipes(SignInPipe)
+  async signIn(@Body() body: SignInDto) {
+    return await this.authService.signIn(body);
+  }
+
+  @Get("test")
+  @UseGuards(AccessGuard)
+  async test(@Req() req: RequestDto) {
+    return req.user;
+  }
+
+  @Get("refresh")
+  @UseGuards(RefreshGuard)
+  async refresh(@Req() req: RequestDto) {
+    return this.authService.refresh(req.user);
   }
 }

@@ -1,23 +1,49 @@
 import { env } from "@/config/env";
 import { PrismaService } from "@/data/prisma.service";
-import { DeviceService } from "@/modules/device/device.service";
 import { AddDeviceDto } from "@/modules/device/dto";
 import { HttpException, Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { compare, hash } from "bcrypt";
-import { UserDeviceDto } from "./dto";
+import { SignInDto, SignResponseDto } from "./dto";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly deviceService: DeviceService,
+    private readonly jwtService: JwtService,
   ) {}
+
+  async generateTokens(
+    userId: string,
+    deviceId: string,
+  ): Promise<SignResponseDto> {
+    const payload = {
+      userId,
+      deviceId,
+    };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: env.JWT_ACCESS_SECRET,
+        expiresIn: "1d",
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: env.JWT_REFRESH_SECRET,
+        expiresIn: "7d",
+      }),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 
   async signUp(
     email: string,
     password: string,
     device: AddDeviceDto,
-  ): Promise<UserDeviceDto> {
+  ): Promise<SignResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: {
         email,
@@ -57,46 +83,25 @@ export class AuthService {
       },
     });
 
-    return {
-      userId: newUser.id,
-      deviceId: newUser.devices[0].id,
-    };
+    const tokens = await this.generateTokens(newUser.id, newUser.devices[0].id);
+    return tokens;
   }
 
-  async signIn(
-    email: string,
-    password: string,
-    device: AddDeviceDto,
-  ): Promise<UserDeviceDto> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (!user) {
-      throw new HttpException("User not found", 404);
-    }
-
-    if (!(await compare(password, user.password))) {
+  async signIn({
+    user,
+    password,
+    device,
+  }: SignInDto): Promise<SignResponseDto> {
+    const isPasswordValid = await compare(password, user.password);
+    if (!isPasswordValid) {
       throw new HttpException("Invalid password", 400);
     }
 
-    const userDevice = await this.prisma.device.findFirst({
-      where: {
-        name: device.name,
-        os: device.os,
-        userId: user.id,
-      },
-    });
+    const tokens = await this.generateTokens(user.id, device.id);
+    return tokens;
+  }
 
-    if (!userDevice) {
-      await this.deviceService.addDevice(user.id, device);
-    }
-
-    return {
-      userId: user.id,
-      deviceId: userDevice.id,
-    };
+  async refresh({ userId, deviceId }: { userId: string; deviceId: string }) {
+    return await this.generateTokens(userId, deviceId);
   }
 }

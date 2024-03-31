@@ -1,5 +1,5 @@
-import { ParseUserPipe } from "@/pipes";
-import { ParseDevicePipe } from "@/pipes/parse-device-pipe";
+import { ParseUserPipe } from "@/common/pipes";
+import { ParseDevicePipe } from "@/common/pipes/parse-device-pipe";
 import { Body, Controller, Param, Post, Put } from "@nestjs/common";
 import {
   ApiCreatedResponse,

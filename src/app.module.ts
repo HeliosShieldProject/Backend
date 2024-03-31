@@ -12,11 +12,11 @@ import { ConfigModule as NestConfigModule } from "@nestjs/config";
       isGlobal: true,
       envFilePath: ".env",
     }),
+    AuthModule,
     UserModule,
     SessionModule,
     ConfigModule,
     DeviceModule,
-    AuthModule,
   ],
 })
 export class AppModule {}
