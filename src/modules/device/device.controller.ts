@@ -1,4 +1,6 @@
-import { Body, Controller, Param, Post } from "@nestjs/common";
+import { ParseUserPipe } from "@/pipes";
+import { ParseDevicePipe } from "@/pipes/parse-device-pipe";
+import { Body, Controller, Param, Post, Put } from "@nestjs/common";
 import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -7,7 +9,6 @@ import {
 import { UUID } from "crypto";
 import { DeviceService } from "./device.service";
 import { AddDeviceDto } from "./dto";
-import { ParseUserPipe } from "./pipes/parse-user-pipe";
 
 @Controller("device")
 @ApiTags("device")
@@ -22,5 +23,12 @@ export class DeviceController {
     @Body() body: AddDeviceDto,
   ) {
     return await this.deviceService.addDevice(userId, body);
+  }
+
+  @Put("/:deviceId")
+  @ApiCreatedResponse({ description: "Device removed" })
+  @ApiNotFoundResponse({ description: "Device or User not found" })
+  async removeDevice(@Param("deviceId", ParseDevicePipe) deviceId: UUID) {
+    return await this.deviceService.removeDevice(deviceId);
   }
 }

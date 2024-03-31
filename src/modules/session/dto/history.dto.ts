@@ -1,13 +1,6 @@
+import { AddDeviceDto } from "@/modules/device/dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Country, SessionStatus } from "@prisma/client";
-
-class Device {
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  os: string;
-}
 
 export class HistoryDto {
   @ApiProperty()
@@ -23,7 +16,7 @@ export class HistoryDto {
   closedAt?: Date;
 
   @ApiProperty()
-  device: Device;
+  device: AddDeviceDto;
 
   @ApiProperty({ enum: Country })
   country: Country;
