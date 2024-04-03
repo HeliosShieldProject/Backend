@@ -14,6 +14,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Logger,
   ParseIntPipe,
   Post,
   Put,
@@ -33,7 +34,10 @@ import { SessionService } from "./session.service";
 @Controller("session")
 @ApiTags("session")
 export class SessionController {
-  constructor(private readonly sessionsService: SessionService) {}
+  constructor(
+    private readonly sessionsService: SessionService,
+    private readonly logger: Logger,
+  ) {}
 
   @Post()
   @ApiCreatedResponse({ type: SessionDto })

@@ -5,7 +5,7 @@ import {
   HistoryDto,
   SessionDto,
 } from "@/modules/session/dto";
-import { HttpException, Injectable } from "@nestjs/common";
+import { HttpException, Injectable, Logger } from "@nestjs/common";
 import { ConfigStatus, Country, SessionStatus } from "@prisma/client";
 
 @Injectable()
@@ -13,6 +13,7 @@ export class SessionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly logger: Logger,
   ) {}
 
   async createSession(
