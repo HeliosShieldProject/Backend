@@ -1,19 +1,21 @@
 import { Country, PrismaClient } from "@prisma/client";
+import { hash } from "bcrypt";
+import { env } from "process";
 const prisma = new PrismaClient();
 
 async function main() {
   // Create users
   const vitya = await prisma.user.create({
     data: {
-      email: "vitya",
-      password: "1234",
+      email: "vitya@gmail.com",
+      password: await hash("1234", Number(env.SALT)),
     },
   });
-  
+
   const kolya = await prisma.user.create({
     data: {
-      email: "kolya",
-      password: "1234",
+      email: "kolya@gmail.com",
+      password: await hash("1234", Number(env.SALT)),
     },
   });
 
