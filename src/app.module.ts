@@ -2,21 +2,16 @@ import { AuthModule } from "@/auth/auth.module";
 import { ConfigModule } from "@/modules/config/config.module";
 import { DeviceModule } from "@/modules/device/device.module";
 import { SessionModule } from "@/modules/session/session.module";
-import { UserModule } from "@/modules/user/user.module";
-import { Module } from "@nestjs/common";
-import { ConfigModule as NestConfigModule } from "@nestjs/config";
+import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { LoggerMiddleware } from "./middleware/logger.middleware";
+import { JwtService } from "@nestjs/jwt";
 
 @Module({
-  imports: [
-    NestConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ".env",
-    }),
-    AuthModule,
-    UserModule,
-    SessionModule,
-    ConfigModule,
-    DeviceModule,
-  ],
+  imports: [AuthModule, SessionModule, ConfigModule, DeviceModule],
+  providers: [Logger, JwtService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes("*");
+  }
+}

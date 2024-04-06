@@ -5,4 +5,9 @@ dist
 # common
 test.*
 .idea
+.env.development
+.env.production
 .env
+
+# logs
+**/*.log

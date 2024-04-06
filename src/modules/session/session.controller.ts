@@ -1,5 +1,6 @@
+import { RequestDto } from "@/auth/dto";
+import { AccessGuard } from "@/common/guards";
 import {
-  CloseSessionDto,
   CreateSessionDto,
   HistoryDto,
   SessionDto,
@@ -13,12 +14,12 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Param,
   ParseIntPipe,
-  ParseUUIDPipe,
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiCreatedResponse,
@@ -37,23 +38,29 @@ export class SessionController {
   @Post()
   @ApiCreatedResponse({ type: SessionDto })
   @ApiNotFoundResponse({ description: "Device or Country not found" })
-  async createSession(@Body() body: CreateSessionDto) {
-    const session = await this.sessionsService.createSession(body);
+  @UseGuards(AccessGuard)
+  async createSession(@Req() req: RequestDto, @Body() body: CreateSessionDto) {
+    const session = await this.sessionsService.createSession(
+      req.user.deviceId,
+      body,
+    );
     return session;
   }
 
   @Put()
   @ApiResponse({ status: HttpStatus.OK })
   @ApiNotFoundResponse({ description: "Session not found" })
-  async closeSession(@Body() body: CloseSessionDto) {
-    await this.sessionsService.closeSessionById(body.sessionId);
+  @UseGuards(AccessGuard)
+  async closeSession(@Req() req: RequestDto) {
+    await this.sessionsService.closeSession(req.user.deviceId);
   }
 
-  @Get("/history/:userId")
+  @Get("/history")
   @ApiResponse({ status: HttpStatus.OK, type: [HistoryDto] })
   @ApiNotFoundResponse({ description: "User not found" })
+  @UseGuards(AccessGuard)
   async getHistory(
-    @Param("userId", ParseUUIDPipe) userId,
+    @Req() req: RequestDto,
     @Query("limit", new ParseIntPipe({ optional: true })) limit: number = 10,
     @Query("offset", new ParseIntPipe({ optional: true })) offset: number = 0,
     @Query("devices", ParseQueryToDevicesArrayPipe)
@@ -62,7 +69,7 @@ export class SessionController {
     countries?: Country[],
   ) {
     const sessions = await this.sessionsService.getHistory(
-      userId,
+      req.user.userId,
       limit,
       offset,
       devices,

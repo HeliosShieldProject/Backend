@@ -1,5 +1,9 @@
+import dotenv from "dotenv";
 import "dotenv/config";
 import z from "zod";
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+export const NODE_ENV = z.enum(["development", "production", "test"]);
 
 const envSchema = z.object({
   MASTER_BACKEND_PORT: z.string().trim(),
@@ -9,7 +13,14 @@ const envSchema = z.object({
   DATABASE_PASSWORD: z.string().trim(),
   JWT_ACCESS_SECRET: z.string().trim(),
   JWT_REFRESH_SECRET: z.string().trim(),
-  SALT: z.string().trim(),
+  SALT: z
+    .string()
+    .trim()
+    .transform((value) => parseInt(value, 10)),
+  LOGS_DATABASE_HOST: z.string().trim(),
+  LOGS_DATABASE_PORT: z.string().trim(),
+  LOGS_DATABASE_USER: z.string().trim(),
+  LOGS_DATABASE_PASSWORD: z.string().trim(),
+  NODE_ENV: NODE_ENV,
 });
-
 export const env = envSchema.parse(process.env);

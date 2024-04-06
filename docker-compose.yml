@@ -1,10 +1,18 @@
 name: "master-backend"
 
-networks:
-  master-network:
-    driver: bridge
-
 services:
+  database:
+    image: postgres:12
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    command: -p ${DATABASE_PORT}
+    volumes:
+      - database-volume:/var/lib/postgresql/data
+
   nest:
     build:
       context: .
@@ -15,17 +23,38 @@ services:
       - "${MASTER_BACKEND_PORT}:${MASTER_BACKEND_PORT}"
     depends_on:
       - database
-    networks:
-      - master-network
 
-  database:
-    image: postgres:12
+  logs-database:
+    image: mongo
+    restart: always
     environment:
-      POSTGRES_DB: ${DATABASE_NAME}
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${LOGS_DATABASE_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${LOGS_DATABASE_PASSWORD}
+    volumes:
+      - logs-database-volume:/data/db
+    command:
+      - --port
+      - ${LOGS_DATABASE_PORT}
     ports:
-      - "${DATABASE_PORT}:${DATABASE_PORT}"
-    command: -p ${DATABASE_PORT}
-    networks:
-      - master-network
+      - "${LOGS_DATABASE_PORT}:${LOGS_DATABASE_PORT}"
+    depends_on:
+      - nest
+
+  logs-viewer:
+    image: mongo-express
+    restart: always
+    ports:
+      - ${LOGS_VIEWER_PORT}:${LOGS_VIEWER_PORT}
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${LOGS_DATABASE_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${LOGS_DATABASE_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://logs-database:${LOGS_DATABASE_PORT}
+      # ME_CONFIG_BASICAUTH_USERNAME: ${LOGS_VIEWER_USER}
+      # ME_CONFIG_BASICAUTH_PASSWORD: ${LOGS_VIEWER_PASSWORD}
+
+    # depends_on:
+    #   - logs-database
+
+volumes:
+  database-volume:
+  logs-database-volume:

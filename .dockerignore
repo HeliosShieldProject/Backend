@@ -1,4 +1,5 @@
 # ide
+.git
 .github
 .vscode
 .pre-commit-config.yaml
@@ -11,3 +12,6 @@ node_modules
 test.*
 .idea
 Readme.md
+
+# logs
+**/*.log
