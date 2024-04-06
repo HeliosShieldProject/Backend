@@ -4,7 +4,7 @@ import { Meta } from "@/logger/types";
 const createMeta = (meta: Meta) => ({
   source: "MiddlewareLogger",
   from: meta.request.from ? meta.request.from : "Anauthorized",
-  ...meta,
+  meta,
 });
 
 class MiddlewareLogger {

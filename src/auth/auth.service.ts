@@ -141,4 +141,37 @@ export class AuthService {
       message: "Logged out successfully",
     };
   }
+
+  async changePassword({ userId, deviceId }: UserDeviceDto, password: string) {
+    const hashedPassword = await hash(password, env.SALT);
+
+    const currentPassword = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        password: true,
+      },
+    });
+
+    if (compare(password, currentPassword.password)) {
+      throw new HttpException(
+        "New password cannot be the same as the current password",
+        400,
+      );
+    }
+
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return {
+      message: "Password changed successfully",
+    };
+  }
 }

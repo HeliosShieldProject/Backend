@@ -4,13 +4,14 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Req,
   UseGuards,
   UsePipes,
 } from "@nestjs/common";
 import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { RequestDto, SignDto, SignInDto } from "./dto";
+import { ChangePasswordDto, RequestDto, SignDto, SignInDto } from "./dto";
 import { SignInPipe } from "./pipes";
 
 @Controller("auth")
@@ -45,5 +46,11 @@ export class AuthController {
   @UseGuards(AccessGuard)
   async logout(@Req() req: RequestDto) {
     return this.authService.logout(req.user);
+  }
+
+  @Put("change-password")
+  @UseGuards(AccessGuard)
+  async changePassword(@Req() req: RequestDto, @Body() body: ChangePasswordDto) {
+    return this.authService.changePassword(req.user, body.password);
   }
 }
