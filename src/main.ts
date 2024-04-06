@@ -1,6 +1,6 @@
 import { AppModule } from "@/app.module";
 import { env } from "@/config/env";
-import { instance } from "@/logger/winson.logger";
+import { logger } from "@/logger";
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
@@ -9,7 +9,7 @@ import { WinstonModule } from "nest-winston";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger({
-      instance: instance,
+      instance: logger,
     }),
   });
   app.useGlobalPipes(new ValidationPipe());
@@ -20,7 +20,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api", app, document);
+  SwaggerModule.setup("docs", app, document);
 
   await app.listen(env.MASTER_BACKEND_PORT);
 }

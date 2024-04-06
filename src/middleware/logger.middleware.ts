@@ -1,24 +1,33 @@
-import { Injectable, Logger, NestMiddleware } from "@nestjs/common";
-
+import { middlewareLogger } from "@/logger/source-loggers/middleware.logger";
+import { Inject, Injectable, NestMiddleware } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { NextFunction, Request, Response } from "express";
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  constructor(private readonly logger: Logger) {}
+  @Inject()
+  private readonly jwtService: JwtService;
 
   use(request: Request, response: Response, next: NextFunction): void {
-    const { originalUrl, body, method, headers } = request;
-    const userAgent = request.get("user-agent") || "";
+    const { password, ...body } = request.body;
+    const auth = request.headers.authorization?.split(" ")[1];
+    const from = this.jwtService.decode(auth);
 
-    response.on("finish", () => {
-      const { statusCode } = response;
-
-      this.logger.log(
-        `${method} ${originalUrl} ${JSON.stringify(body)} ${JSON.stringify(headers)} - ${statusCode} - ${userAgent}`,
-        "LoggerMiddleware",
-      );
-    });
-
+    middlewareLogger.info(
+      `${request.method} Request to ${request.originalUrl}`,
+      {
+        request: {
+          originalUrl: request.originalUrl,
+          body,
+          method: request.method,
+          headers: request.headers,
+          from: from,
+        },
+        response: {
+          statusCode: response.statusCode,
+        },
+      },
+    );
     next();
   }
 }
