@@ -7,7 +7,7 @@ import { consoleTransport, logtailTransport, mongoTransport } from "./transports
 
 const getTransports = (): TransportStream[] => {
   const transports = {
-    development: [consoleTransport, mongoTransport, logtailTransport],
+    development: [consoleTransport, mongoTransport],
     production: [mongoTransport, logtailTransport],
   };
 

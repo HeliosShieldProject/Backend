@@ -40,4 +40,10 @@ export class AuthController {
   async refresh(@Req() req: RequestDto) {
     return this.authService.refresh(req.user);
   }
+
+  @Post("logout")
+  @UseGuards(AccessGuard)
+  async logout(@Req() req: RequestDto) {
+    return this.authService.logout(req.user);
+  }
 }

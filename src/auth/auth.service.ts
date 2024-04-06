@@ -4,7 +4,7 @@ import { AddDeviceDto } from "@/modules/device/dto";
 import { HttpException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { compare, hash } from "bcrypt";
-import { SignInDto, SignResponseDto } from "./dto";
+import { SignInDto, SignResponseDto, UserDeviceDto } from "./dto";
 
 @Injectable()
 export class AuthService {
@@ -101,7 +101,44 @@ export class AuthService {
     return tokens;
   }
 
-  async refresh({ userId, deviceId }: { userId: string; deviceId: string }) {
+  async refresh({ userId, deviceId }: UserDeviceDto) {
     return await this.generateTokens(userId, deviceId);
+  }
+
+  async logout({ deviceId }: UserDeviceDto) {
+    await this.prisma.device.update({
+      where: {
+        id: deviceId,
+      },
+      data: {
+        status: "REVOKED",
+      },
+    });
+
+    const session = await this.prisma.session.findFirst({
+      where: {
+        deviceId,
+        status: "ACTIVE",
+      },
+    });
+
+    if (session) {
+      await this.prisma.session.update({
+        where: { id: session.id },
+        data: {
+          status: "CLOSED",
+          closedAt: new Date(),
+          config: {
+            update: {
+              status: "NOT_IN_USE",
+            },
+          },
+        },
+      });
+    }
+
+    return {
+      message: "Logged out successfully",
+    };
   }
 }
