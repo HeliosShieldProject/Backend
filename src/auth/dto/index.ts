@@ -1,3 +1,4 @@
+export { ChangePasswordDto } from "./change-password.dto";
 export { PayloadDto } from "./payload.dto";
 export { RequestDto } from "./request.dto";
 export { SignInDto } from "./sign-in.dto";

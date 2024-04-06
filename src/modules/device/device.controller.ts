@@ -19,14 +19,22 @@ export class DeviceController {
     return await this.deviceService.getDevices(req.user.userId);
   }
 
-  @Put("/:deviceId")
+  @Put("/revoke/:deviceId")
   @ApiCreatedResponse({ description: "Device removed" })
   @ApiNotFoundResponse({ description: "Device or User not found" })
   @UseGuards(AccessGuard)
-  async removeDevice(
+  async revokeDevice(
     @Req() req: RequestDto,
     @Param("deviceId") deviceId: string,
   ) {
-    return await this.deviceService.removeDevice(req.user.userId, deviceId);
+    return await this.deviceService.revokeDevice(req.user.userId, deviceId);
+  }
+
+  @Put("/revoke/others")
+  @ApiCreatedResponse({ description: "Other devices removed" })
+  @ApiNotFoundResponse({ description: "No devices found" })
+  @UseGuards(AccessGuard)
+  async revokeOtherDevices(@Req() req: RequestDto) {
+    return await this.deviceService.revokeOtherDevices(req.user);
   }
 }
