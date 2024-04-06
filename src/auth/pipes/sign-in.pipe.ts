@@ -44,7 +44,11 @@ export class SignInPipe implements PipeTransform {
     }
 
     let existingDevice = await this.prisma.device.findFirst({
-      where: { name: device.name, os: device.os },
+      where: {
+        name: device.name,
+        os: device.os,
+        userId: existingUser.id,
+      },
     });
 
     if (!existingDevice) {

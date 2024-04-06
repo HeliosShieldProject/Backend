@@ -22,5 +22,6 @@ const envSchema = z.object({
   LOGS_DATABASE_USER: z.string().trim(),
   LOGS_DATABASE_PASSWORD: z.string().trim(),
   NODE_ENV: NODE_ENV,
+  LOGTAIL_SOURCE: z.string().trim(),
 });
 export const env = envSchema.parse(process.env);

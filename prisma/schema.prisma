@@ -33,9 +33,9 @@ enum ConfigStatus {
 }
 
 enum DeviceStatus {
-  ACTIVE
-  REVOKED
-  BANNED
+  ACTIVE  // User logged in and can use the device
+  REVOKED // User logged out and can't use the device
+  BANNED 
   PERMANENTLY_BANNED
 }
 

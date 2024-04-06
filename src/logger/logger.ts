@@ -1,18 +1,20 @@
 import { env } from "@/config/env";
-import { consoleTransport, mongoTransport } from "./transports";
-import { createLogger, format } from "winston";
-import { rename, server } from "./formats";
 
-const getTransports = () => {
+import { createLogger, format } from "winston";
+import TransportStream from "winston-transport";
+import { rename, server } from "./formats";
+import { consoleTransport, logtailTransport, mongoTransport } from "./transports";
+
+const getTransports = (): TransportStream[] => {
   const transports = {
     development: [consoleTransport, mongoTransport],
-    production: [mongoTransport],
+    production: [mongoTransport, logtailTransport],
   };
 
   return transports[env.NODE_ENV];
 };
 
-const instanceLogger = {
+export const logger = createLogger({
   format: format.combine(
     server({ name: "Master Backend" }),
     rename({
@@ -22,6 +24,4 @@ const instanceLogger = {
     }),
   ),
   transports: getTransports(),
-};
-
-export const logger = createLogger(instanceLogger);
+});
