@@ -50,7 +50,10 @@ export class AuthController {
 
   @Put("change-password")
   @UseGuards(AccessGuard)
-  async changePassword(@Req() req: RequestDto, @Body() body: ChangePasswordDto) {
+  async changePassword(
+    @Req() req: RequestDto,
+    @Body() body: ChangePasswordDto,
+  ) {
     return this.authService.changePassword(req.user, body.password);
   }
 }

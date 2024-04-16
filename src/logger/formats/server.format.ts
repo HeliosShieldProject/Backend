@@ -5,9 +5,7 @@ interface ServerFormatOptions {
   name: string;
 }
 
-export const server = format(
-  (info: InfoParams, opts: ServerFormatOptions) => {
-    info.server = opts.name;
-    return info;
-  },
-);
+export const server = format((info: InfoParams, opts: ServerFormatOptions) => {
+  info.server = opts.name;
+  return info;
+});
