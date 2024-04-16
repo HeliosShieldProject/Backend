@@ -7,8 +7,7 @@ test.*
 .idea
 .env.development
 .env.production
-.env.test.local
-.env.test.production
+.env.test
 .env
 
 # logs

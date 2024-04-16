@@ -9,7 +9,7 @@ import { AccessStrategy } from "./strategies/access.strategy";
 import { RefreshStrategy } from "./strategies/refresh.strategy";
 
 @Module({
-  imports: [PassportModule, JwtModule.register({})],
+  imports: [PassportModule, JwtModule],
   providers: [
     DeviceService,
     PrismaService,

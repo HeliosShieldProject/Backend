@@ -13,9 +13,9 @@
     "start:debug": "export $(cat .env.development | xargs) && start --debug --watch",
     "start:prod": "dotenv -e .env.production node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "test": "dotenv -e .env.test jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test:cov": "dotenv -e .env.test jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
@@ -33,7 +33,6 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "dotenv": "^16.4.5",
     "logform": "^2.6.0",
     "mongodb": "^6.5.0",
     "nest-winston": "^1.9.4",
@@ -78,6 +77,9 @@
     "typescript": "^5.4.2"
   },
   "jest": {
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    },
     "moduleFileExtensions": [
       "js",
       "json",

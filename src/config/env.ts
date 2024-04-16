@@ -1,9 +1,8 @@
-import dotenv from "dotenv";
 import "dotenv/config";
 import z from "zod";
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 export const NODE_ENV = z.enum(["development", "production", "test"]);
+export type NODE_ENV = z.infer<typeof NODE_ENV>;
 
 const envSchema = z.object({
   MASTER_BACKEND_PORT: z.string().trim(),
