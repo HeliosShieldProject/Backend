@@ -1,4 +1,3 @@
-import { PrismaService } from "@/data/prisma.service";
 import { DeviceService } from "@/modules/device/device.service";
 import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
@@ -10,13 +9,7 @@ import { RefreshStrategy } from "./strategies/refresh.strategy";
 
 @Module({
   imports: [PassportModule, JwtModule],
-  providers: [
-    DeviceService,
-    PrismaService,
-    AuthService,
-    AccessStrategy,
-    RefreshStrategy,
-  ],
+  providers: [DeviceService, AuthService, AccessStrategy, RefreshStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
